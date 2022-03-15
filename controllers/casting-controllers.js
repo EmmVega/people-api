@@ -81,6 +81,8 @@ const rows = [
    ),
 ];
 
+// const USER_CASTINGS = row.slice(4)
+
 let DUMMY_CASTINGS = rows;
 
 const getAllCastings = (req, res, next) => {
@@ -104,6 +106,15 @@ const getFilteredCastings = (req, res, next) => {
    res.json(filteredCast);
 };
 
+const getCastingsByUserId = (req, res, next) => {
+   const { uId } = req.body;
+
+   // LOGIC FOR USER ID
+
+   res.json(DUMMY_CASTINGS);
+};
+
 exports.getAllCastings = getAllCastings;
 exports.getCastingDataById = getCastingDataById;
 exports.getFilteredCastings = getFilteredCastings;
+exports.getCastingsByUserId = getCastingsByUserId;
