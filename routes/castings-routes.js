@@ -6,6 +6,6 @@ const router = express.Router();
 router.get("/", castingsControllers.getAllCastings);
 router.get("/castings/", castingsControllers.getFilteredCastings);
 router.get("/castings/:cid", castingsControllers.getCastingDataById);
-router.get("/board", castingsControllers.getCastingsByUserId);
+router.get("/castings/board/:uid", castingsControllers.getCastingsByUserId);
 
 module.exports = router;

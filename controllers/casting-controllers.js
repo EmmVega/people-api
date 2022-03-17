@@ -81,7 +81,27 @@ const rows = [
    ),
 ];
 
-// const USER_CASTINGS = row.slice(4)
+const DUMMY_USERS = [
+   {
+      uid: "userId",
+      email: "test@test.com",
+      password: "password1",
+      castings: [
+         {
+            id: 1,
+            status: "applied",
+         },
+         {
+            id: 3,
+            status: "pinned",
+         },
+         {
+            id: 5,
+            status: "applied",
+         },
+      ],
+   },
+];
 
 let DUMMY_CASTINGS = rows;
 
@@ -107,11 +127,22 @@ const getFilteredCastings = (req, res, next) => {
 };
 
 const getCastingsByUserId = (req, res, next) => {
-   const { uId } = req.body;
+   const { uid } = req.params;
 
-   // LOGIC FOR USER ID
+   const identifiedUser = DUMMY_USERS.find((u) => {
+      return u.uid === uid;
+   });
 
-   res.json(DUMMY_CASTINGS);
+   let castings = [];
+
+   identifiedUser.castings.map((userc) => {
+      identifiedCasting = DUMMY_CASTINGS.find((c) => {
+         return c.id === userc.id;
+      });
+      castings.push({ ...identifiedCasting, status: userc.status });
+   });
+
+   res.json(castings);
 };
 
 exports.getAllCastings = getAllCastings;
