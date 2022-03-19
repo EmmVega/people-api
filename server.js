@@ -1,7 +1,9 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+
 const castingRoutes = require("./routes/castings-routes");
 const userRoutes = require("./routes/user-routes");
-const bodyParser = require("body-parser");
 
 const app = express();
 
@@ -28,4 +30,12 @@ app.use((err, req, res, next) => {
    res.json({ message: err.message || "Ocurrió un error no identificado" });
 });
 
-app.listen(5000);
+mongoose
+   .connect(
+      "mongodb+srv://Carlos:MONGOpass2.@cluster0.w6bws.mongodb.net/peopleDB?retryWrites=true&w=majority"
+   )
+   .then(() => {
+      app.listen(5000);
+      console.log("CONECTADA A MONGODB");
+   })
+   .catch((err) => console.log(err));
