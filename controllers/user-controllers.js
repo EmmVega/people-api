@@ -1,5 +1,7 @@
+const { default: mongoose } = require("mongoose");
 const HttpError = require("../models/httpError");
 const User = require("../models/user");
+const Casting = require("../models/casting");
 
 // let DUMMY_USERS = [
 //    {
@@ -81,5 +83,48 @@ const login = async (req, res, next) => {
    });
 };
 
+const addCasting = async (req, res, next) => {
+   const { uId, casting } = req.body;
+   let identifiedUser;
+   try {
+      identifiedUser = await User.findById(uId);
+   } catch (err) {
+      next(new HttpError("Error while finding the user", 500));
+   }
+
+   if (!identifiedUser)
+      return next(new HttpError("Could not find user for provided ID", 404));
+
+   try {
+      // console.log(casting);
+      // console.log(mongoose.Types.ObjectId(casting._id));
+      // const cId = mongoose.Types.ObjectId(casting._id);
+      identifiedUser;
+      const existingCast = identifiedUser.castings.find((x) => {
+         return x._id.equals(casting._id);
+      });
+
+      if (existingCast && existingCast.status === casting.status)
+         throw Error(`Casting already ${casting.status}`);
+      else if (existingCast) {
+         const idx = identifiedUser.castings.findIndex((x) => {
+            return existingCast === x;
+         });
+
+         identifiedUser.castings[idx].status = casting.status;
+
+         await identifiedUser.save();
+      } else {
+         identifiedUser.castings.push(casting);
+         await identifiedUser.save();
+      }
+   } catch (err) {
+      if (err.message) return next(new HttpError(err.message, 409));
+      else return next(new HttpError("Could not add casting to user", 500));
+   }
+   res.status(200).json({ user: identifiedUser, message: "Successful" });
+};
+
 exports.signup = signUp;
 exports.login = login;
+exports.addCasting = addCasting;

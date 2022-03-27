@@ -192,42 +192,50 @@ const getFilteredCastings = async (req, res, next) => {
 
 const getCastingsByUserId = async (req, res, next) => {
    const { uid } = req.params;
-
    // const identifiedUser = DUMMY_USERS.find((u) => {
    //    return u.uid === uid;
    // });
-
    let identifiedUser;
    try {
       identifiedUser = await User.findById(uid);
    } catch (err) {
       return next(new HttpError("Something failed getting the user", 500));
    }
-
    // identifiedUser.castings.map((userc) => {
    //    identifiedCasting = DUMMY_CASTINGS.find((c) => {
    //       return c.id === userc.id;
    //    });
    //    castings.push({ ...identifiedCasting, status: userc.status });
    // });
-
-   let castings = [];
-
-   identifiedUser.castings.map(async (cid) => {
-      try {
-         const casting = await Casting.findById(cid);
-         castings.push(casting);
-      } catch (err) {
-         return next(
-            new HttpError(
-               "Something failed getting the castings of that userId",
-               500
-            )
-         );
-      }
+   let castingsIds = [];
+   identifiedUser.castings.map((c) => {
+      castingsIds.push(c._id);
    });
 
-   res.json(castings);
+   let castings = [];
+   let castFullStatus;
+   try {
+      castings = await Casting.find({
+         _id: { $in: castingsIds },
+      });
+
+      castFullStatus = castings.map((cFull) => {
+         const pair = identifiedUser.castings.find((x) => {
+            return x._id.equals(cFull._id);
+         });
+         cFull.status = pair.status;
+         return cFull;
+      });
+   } catch (err) {
+      return next(
+         new HttpError(
+            "Something failed getting the castings of that userId",
+            500
+         )
+      );
+   }
+
+   res.json(castFullStatus);
 };
 
 exports.getAllCastings = getAllCastings;

@@ -14,6 +14,7 @@ const castingSchema = new Schema({
    },
    industry: { type: String, required: true },
    info: { type: String, required: false },
+   status: { type: String, required: false },
 });
 
 module.exports = mongoose.model("Casting", castingSchema);

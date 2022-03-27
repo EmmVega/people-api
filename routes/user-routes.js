@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.post("/signup", userControllers.signup);
 router.post("/signin", userControllers.login);
+router.post("/addCasting", userControllers.addCasting);
 
 module.exports = router;
