@@ -2,6 +2,8 @@ const { default: mongoose } = require("mongoose");
 const HttpError = require("../models/httpError");
 const User = require("../models/user");
 const Casting = require("../models/casting");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // let DUMMY_USERS = [
 //    {
@@ -42,9 +44,17 @@ const signUp = async (req, res, next) => {
 
    // DUMMY_USERS.push({ email, password });
 
+   let hashedPassword;
+   try {
+      hashedPassword = await bcrypt.hash(password, 12);
+   } catch (err) {
+      return next(
+         new HttpError("Could not create hashed pass, try again", 500)
+      );
+   }
    const createdUser = new User({
       email,
-      password,
+      password: hashedPassword,
       castings: [],
    });
 
@@ -54,7 +64,18 @@ const signUp = async (req, res, next) => {
       return next(new HttpError("Something failed saving to DB", 500));
    }
 
-   res.status(201).json({ user: createdUser });
+   let token;
+   try {
+      token = jwt.sign(
+         { userId: createdUser._id, email: createdUser.email },
+         "SUPERSECRET_DONT_SHARE",
+         { expiresIn: "1h" }
+      );
+   } catch (err) {
+      return next(new HttpError("Something failed creating token", 500));
+   }
+
+   res.status(201).json({ user: createdUser, token: token });
 };
 
 const login = async (req, res, next) => {
@@ -70,16 +91,41 @@ const login = async (req, res, next) => {
       );
    }
 
-   if (!existingUser || existingUser.password !== password) {
+   if (!existingUser) {
       return next(new HttpError("Invalid credentials", 401));
    }
 
+   let isValidPassword = false;
+
+   try {
+      isValidPassword = await bcrypt.compare(password, existingUser.password);
+   } catch (err) {
+      return next(
+         new HttpError("Something went wrong comparing password", 500)
+      );
+   }
+
+   if (!isValidPassword) {
+      return next(new HttpError("Invalid credentials", 401));
+   }
    // if (!identifiedUser || !identifiedUser.password === password)
    //    throw new HttpError("Invalid Credentials", 401);
+
+   let token;
+   try {
+      token = jwt.sign(
+         { userId: existingUser._id, email: existingUser.email },
+         "SUPERSECRET_DONT_SHARE",
+         { expiresIn: "1h" }
+      );
+   } catch (err) {
+      return next(new HttpError("Something failed creating token", 500));
+   }
 
    res.json({
       message: "Logged in",
       user: existingUser,
+      token: token,
    });
 };
 

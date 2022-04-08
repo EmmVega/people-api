@@ -201,6 +201,10 @@ const getCastingsByUserId = async (req, res, next) => {
    } catch (err) {
       return next(new HttpError("Something failed getting the user", 500));
    }
+
+   if (uid !== req.userData.userId) {
+      return next(new HttpError("You are not allowed to edit this place", 401));
+   }
    // identifiedUser.castings.map((userc) => {
    //    identifiedCasting = DUMMY_CASTINGS.find((c) => {
    //       return c.id === userc.id;

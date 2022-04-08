@@ -19,8 +19,8 @@ app.use((req, res, next) => {
    next();
 });
 
-app.use("/", castingRoutes);
 app.use("/api/user", userRoutes);
+app.use("/", castingRoutes);
 
 app.use((err, req, res, next) => {
    if (res.headerSent) {
