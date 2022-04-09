@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 const castingRoutes = require("./routes/castings-routes");
 const userRoutes = require("./routes/user-routes");
@@ -13,7 +14,7 @@ app.use((req, res, next) => {
    res.setHeader("Access-Control-Allow-Origin", "*");
    res.setHeader(
       "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+      "Origin, X-Requested-With, Content-Type, ResponseType, Accept, Authorization"
    );
    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
    next();
@@ -23,6 +24,13 @@ app.use("/api/user", userRoutes);
 app.use("/", castingRoutes);
 
 app.use((err, req, res, next) => {
+   if (req.file) {
+      console.log("aberr", req.file);
+      fs.unlink(req.file.path, (err) => {
+         console.log(err);
+      });
+   }
+
    if (res.headerSent) {
       return next(err);
    }

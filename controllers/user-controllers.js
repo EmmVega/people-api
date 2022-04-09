@@ -171,6 +171,43 @@ const addCasting = async (req, res, next) => {
    res.status(200).json({ user: identifiedUser, message: "Successful" });
 };
 
+const addCv = async (req, res, next) => {
+   if (!req.file) return next(new HttpError("no hay file asegun", 500));
+
+   const uId = req.body.uId;
+   const cv = req.file.path;
+
+   let identifiedUser;
+   try {
+      identifiedUser = await User.findById(uId);
+
+      identifiedUser.cv = cv;
+      identifiedUser.save();
+   } catch (err) {
+      return next(new HttpError("something failled identifying uid"));
+   }
+
+   res.status(200).json({ message: "Saved Successfully" });
+};
+
+const getCv = async (req, res, next) => {
+   // if (!req.file) return next(new HttpError("no hay file asegun", 500));
+
+   const { uId } = req.params;
+
+   let identifiedUser;
+   try {
+      identifiedUser = await User.findById(uId);
+      // res.status(200).json({ cv: identifiedUser.cv });
+   } catch (err) {
+      return next(new HttpError("something failled identifying uid"));
+   }
+
+   res.download(identifiedUser.cv);
+};
+
 exports.signup = signUp;
 exports.login = login;
 exports.addCasting = addCasting;
+exports.addCv = addCv;
+exports.getCv = getCv;

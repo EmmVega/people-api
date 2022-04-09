@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
    email: { type: String, required: true },
    password: { type: String, required: true },
+   cv: { type: String, required: false },
    castings: [
       {
          _id: {
